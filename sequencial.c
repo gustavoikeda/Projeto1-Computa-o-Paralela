@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX_LINHAS 10000000
+#define MAX_SENSORES 1000
+
+int total_alertas = 0;
+
+typedef struct {
+    int id;
+    double temperatura_soma;
+    int count_temperatura;
+    double soma_quadrados_temperatura;
+    double energia_soma;
+} Sensor;
+
+void inicializar_sensores(Sensor sensores[]) {
+    for (int i = 0; i < MAX_SENSORES; i++) {
+        sensores[i].id = i;
+        sensores[i].temperatura_soma = 0;
+        sensores[i].count_temperatura = 0;
+        sensores[i].soma_quadrados_temperatura = 0;
+        sensores[i].energia_soma = 0;
+    }
+}
+
+void processar_linha(char *linha, Sensor sensores[]) {
+    char sensor[20];
+    char data[20];
+    char hora[20];
+    char tipo[20];
+    char status[10];
+    double valor;
+
+    sscanf(linha, "%s %s %s %s %lf status %s", sensor, data, hora, tipo, &valor, status);
+
+    int id;
+    sscanf(sensor, "sensor_%d", &id);
+    Sensor *s = &sensores[id];
+
+    if (strcmp(tipo, "temperatura") == 0) {
+        s->temperatura_soma += valor;
+        s->count_temperatura++;
+        s->soma_quadrados_temperatura += valor * valor;
+    } else if (strcmp(tipo, "energia") == 0) {
+        s->energia_soma += valor;
+    }
+
+    if (strcmp(status, "ALERTA") == 0 || strcmp(status, "CRITICO") == 0) {
+        total_alertas++;
+    }
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Uso: %s <arquivo>\n", argv[0]);
+        return 1;
+    }
+
+    char *nome_arquivo = argv[1];
+    FILE *arquivo = fopen(nome_arquivo, "r");
+    if (!arquivo) {
+        printf("Erro ao abrir arquivo\n");
+        return 1;
+    }
+
+    char **linhas = malloc(sizeof(char *) * MAX_LINHAS);
+    int total_linhas = 0;
+    char buffer[256];
+
+    while (fgets(buffer, sizeof(buffer), arquivo) && total_linhas < MAX_LINHAS) {
+        linhas[total_linhas] = strdup(buffer);
+        total_linhas++;
+    }
+    fclose(arquivo);
+
+    Sensor sensores[MAX_SENSORES];
+    inicializar_sensores(sensores);
+
+    clock_t inicio = clock();
+
+    for (int i = 0; i < total_linhas; i++) {
+        processar_linha(linhas[i], sensores);
+    }
+
+    clock_t fim = clock();
+    double tempo_gasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
+
+    printf("\nMédia de temperatura dos primeiros 10 sensores:\n");
+    int count = 0;
+    for (int i = 0; i < MAX_SENSORES && count < 10; i++) {
+        if (sensores[i].count_temperatura > 0) {
+            double media = sensores[i].temperatura_soma / sensores[i].count_temperatura;
+            printf("sensor_%03d: %.2f\n", i, media);
+            count++;
+        }
+    }
+
+    double maior_desvio = -1.0;
+    int sensor_instavel = -1;
+    double total_energia = 0.0;
+
+    for (int i = 0; i < MAX_SENSORES; i++) {
+        if (sensores[i].count_temperatura > 1) {
+            double media = sensores[i].temperatura_soma / sensores[i].count_temperatura;
+            double variancia = (sensores[i].soma_quadrados_temperatura / sensores[i].count_temperatura) - (media * media);
+            double desvio = sqrt(variancia);
+            if (desvio > maior_desvio) {
+                maior_desvio = desvio;
+                sensor_instavel = i;
+            }
+        }
+        total_energia += sensores[i].energia_soma;
+    }
+
+    if (sensor_instavel != -1) {
+        printf("\nSensor mais instável:\n");
+        printf("sensor_%03d com desvio padrão = %.4f\n", sensor_instavel, maior_desvio);
+    } else {
+        printf("\nNenhum sensor com dados suficientes.\n");
+    }
+
+    printf("\nTotal de alertas: %d\n", total_alertas);
+    printf("\nConsumo total de energia: %.2f\n", total_energia);
+    printf("Tempo de execução: %.5f segundos\n", tempo_gasto);
+
+    for (int i = 0; i < total_linhas; i++) {
+        free(linhas[i]);
+    }
+    free(linhas);
+
+    return 0;
+}
