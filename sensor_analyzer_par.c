@@ -183,7 +183,9 @@ int main(int argc, char *argv[]){
     }
     printf("\nTotal de alertas: %d\n", total_alertas);
     printf("\nConsumo total de energia: %.2f\n", total_energia);
-    
+    printf("Pedro Montarroyos de Pinho RA:10440213\n");
+    printf("Gustavo Kiyoshi Ikeda RA:10439179\n");
+    printf("Jiye Huang RA:10438990\n");
     printf("Tempo de execução: %.5f segundos\n", tempo_gasto);
     for(int i = 0; i < total_linhas; i++)
     {
