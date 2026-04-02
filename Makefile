@@ -9,9 +9,9 @@ EXEC_PAR = paralela
 EXEC_OTI = otimizada
 
 
-SRC_SEQ = sequencial.c
-SRC_PAR = paralela.c
-SRC_OTI = otimizada.c
+SRC_SEQ = sensor_analyzer_seq.c
+SRC_PAR = sensor_analyzer_par.c
+SRC_OTI = sensor_analyzer_optimized.c
 
 
 all: $(EXEC_SEQ) $(EXEC_PAR) $(EXEC_OTI)
