@@ -6,7 +6,7 @@
 
 #define MAX_LINHAS 10000000
 #define MAX_SENSORES 1000
-
+struct timespec start, end;
 int total_alertas = 0;
 
 typedef struct {
@@ -80,15 +80,17 @@ int main(int argc, char *argv[]) {
     Sensor sensores[MAX_SENSORES];
     inicializar_sensores(sensores);
 
-    clock_t inicio = clock();
+    //clock_t inicio = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     for (int i = 0; i < total_linhas; i++) {
         processar_linha(linhas[i], sensores);
     }
 
-    clock_t fim = clock();
-    double tempo_gasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-
+    //clock_t fim = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    //double tempo_gasto = (double)(inicio - fim) / CLOCKS_PER_SEC;
+    double tempo_gasto = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
     printf("\nMédia de temperatura dos primeiros 10 sensores:\n");
     int count = 0;
     for (int i = 0; i < MAX_SENSORES && count < 10; i++) {
@@ -126,7 +128,9 @@ int main(int argc, char *argv[]) {
     printf("\nTotal de alertas: %d\n", total_alertas);
     printf("\nConsumo total de energia: %.2f\n", total_energia);
     printf("Tempo de execução: %.5f segundos\n", tempo_gasto);
-
+    printf("Pedro Montarroyos de Pinho RA:10440213\n");
+    printf("Gustavo Kiyoshi Ikeda RA:10439179\n");
+    printf("Jiye Huang RA:10438990\n");
     for (int i = 0; i < total_linhas; i++) {
         free(linhas[i]);
     }
