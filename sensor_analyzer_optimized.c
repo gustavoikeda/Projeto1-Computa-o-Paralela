@@ -164,12 +164,15 @@ int main(int argc, char *argv[]){
         total_energia += sensores_globais[i].energia_soma;
     }
 
-    printf("\nSensor mais instável: sensor_%03d (DP: %.4f)\n", sensor_instavel, maior_desvio);
+    printf("\nSensor mais instável: sensor_%03d\n", sensor_instavel);
+    printf("Desvio Padrao: %.4f \n", maior_desvio);
     printf("Total de alertas: %d\n", total_alertas_global);
     printf("Consumo total de energia: %.2f\n", total_energia);
     printf("Tempo de execução paralelo: %.5f segundos\n", tempo_gasto);
-
-    // Limpeza
+    printf("Pedro Montarroyos de Pinho RA:10440213\n");
+    printf("Gustavo Kiyoshi Ikeda RA:10439179\n");
+    printf("Jiye Huang RA:10438990\n");
+    
     for(int i = 0; i < total_linhas; i++) free(linhas[i]);
     free(linhas); free(threads); free(chunks);
     return 0;
