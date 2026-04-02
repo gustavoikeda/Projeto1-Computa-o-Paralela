@@ -1,3 +1,7 @@
+//Pedro Montarroyos de Pinho RA:10440213
+//Gustavo Kiyoshi Ikeda RA:10439179
+// Jiye Huang RA:10438990
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
